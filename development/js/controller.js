@@ -58,7 +58,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                 fse.copySync(audioFileOld,audioFileNew);
                 //拷贝至新地址
                 //audioTag = "<audio src='file://"+audioFilePath+"' controls='controls'></audio>";
-                result.resourceUrl = path.join("audio",formatTimeStamp(createTime)+".mp3");
+                result.resourceUrl = formatTimeStamp(createTime)+".mp3";
             }else {
                 result.convertStatus = false;
                 result.errorMessage = "[语音读取出错]";
@@ -221,7 +221,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                 console.log("data.sqlite error:", error);
             }
             });
-        var sql = "SELECT * FROM "+chatTableName+" order by CreateTime";
+        var sql = "SELECT * FROM "+chatTableName+" order by CreateTime limit 1000";
         var index = 1;
         //  5.逐条数据库信息获取
         db.each(sql,
