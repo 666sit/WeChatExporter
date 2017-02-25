@@ -26,7 +26,8 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
     };
     $scope.processText = function () {
         return {
-            resourceUrl:"",
+            resourceName:"",
+            thumbnailName:"",
             convertStatus:true,
             errorMessage:""
         }
@@ -38,7 +39,8 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
         var fse = require('fs-extra');
         var path = require('path');
         var result={
-            resourceUrl:"",
+            resourceName:"",
+            thumbnailName:"",
             convertStatus:true,
             errorMessage:""
         };
@@ -58,7 +60,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                 fse.copySync(audioFileOld,audioFileNew);
                 //拷贝至新地址
                 //audioTag = "<audio src='file://"+audioFilePath+"' controls='controls'></audio>";
-                result.resourceUrl = formatTimeStamp(createTime)+".mp3";
+                result.resourceName = formatTimeStamp(createTime)+".mp3";
             }else {
                 result.convertStatus = false;
                 result.errorMessage = "[语音读取出错]";
@@ -77,7 +79,8 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
         var fse = require('fs-extra');
         var path = require('path');
         var result={
-            resourceUrl:"",
+            resourceName:"",
+            thumbnailName:"",
             convertStatus:true,
             errorMessage:""
         };
@@ -107,7 +110,8 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
             result.convertStatus = false;
             result.errorMessage += "[图片原图不存在]";
         }
-        result.resourceUrl = path.basename(thumbnailTarget);
+        result.resourceName = path.basename(imageTarget);
+        result.thumbnailName = path.basename(thumbnailTarget)
 
         if(true)
         {
@@ -123,7 +127,8 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
         var fse = require('fs-extra');
         var path = require('path');
         var result={
-            resourceUrl:"",
+            resourceName:"",
+            thumbnailName:"",
             convertStatus:true,
             errorMessage:""
         };
@@ -154,9 +159,8 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
             result.convertStatus = false;
 
         }
-        result.resourceUrl = path.basename(thumbnailTarget);
-
-
+        result.resourceName = path.basename(videoTarget);
+        result.thumbnailName = path.basename(thumbnailTarget);
         return result;
     };
     $scope.startGeneration = function (documentsPath, wechatUserMD5, chatTableName) {
@@ -275,8 +279,8 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                         message.type = "其他类型消息";
                         //message.content = "未知消息类型：type id:"+rows[i].Type;
                 }
-                newDb.run("INSERT INTO ChatData (MesLocalID,CreateTime,Message,Status,ImgStatus,Type,Des,resourceUrl) VALUES (?,?,?,?,?,?,?,?);",
-                    [row.MesLocalID,row.CreateTime,row.Message,row.Status,row.ImgStatus,row.Type,row.Des,result.resourceUrl]);
+                newDb.run("INSERT INTO ChatData (MesLocalID,CreateTime,Message,Status,ImgStatus,Type,Des,resourceName,thumbnailName) VALUES (?,?,?,?,?,?,?,?,?);",
+                    [row.MesLocalID,row.CreateTime,row.Message,row.Status,row.ImgStatus,row.Type,row.Des,result.resourceName,result.thumbnailName]);
                 if(result.convertStatus == true){
                     message.status = "成功";
                 }else{
