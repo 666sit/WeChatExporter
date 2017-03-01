@@ -13,6 +13,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
     };
     $scope.targetPath={
         rootFolder:"/Users/shidanlifuhetian/Desktop/output",
+        tmpFolder:"",
         audioFolder:"",
         imageFolder:"",
         imageThumbnailFolder:"",
@@ -170,6 +171,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
 
         // 0.准备工作 a.设置好文件夹路径
         $scope.documentsPath.rootFolder = path.normalize(documentsPath);
+
         $scope.documentsPath.audioFolder = path.join($scope.documentsPath.rootFolder,wechatUserMD5,"Audio",getChatterMd5(chatTableName));
         $scope.documentsPath.imageFolder = path.join($scope.documentsPath.rootFolder,wechatUserMD5,"Img",getChatterMd5(chatTableName));
         $scope.documentsPath.videoFolder = path.join($scope.documentsPath.rootFolder,wechatUserMD5,"Video",getChatterMd5(chatTableName));
@@ -177,6 +179,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
         //console.log($scope.documentsPath);
         var sqliteFilePath = documentsPath+"/"+wechatUserMD5+"/DB/MM.sqlite";
         //$scope.targetPath.rootFolder = path.join(path.dirname(process.mainModule.filename),"output");
+        $scope.targetPath.tmpFolder = path.join($scope.targetPath.rootFolder,".tmp");
         $scope.targetPath.audioFolder = path.join($scope.targetPath.rootFolder,"audio");
         $scope.targetPath.imageFolder = path.join($scope.targetPath.rootFolder,"image");
         $scope.targetPath.imageThumbnailFolder = path.join($scope.targetPath.rootFolder,"image","thumbnail");
@@ -188,12 +191,14 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
 
         fse.emptyDirSync($scope.targetPath.rootFolder);// 保证output文件夹为空，不为空则清空，不存在则创建
         fs.mkdirSync($scope.targetPath.audioFolder);
+        fs.mkdirSync($scope.targetPath.tmpFolder);
         fs.mkdirSync($scope.targetPath.imageFolder);
         fs.mkdirSync($scope.targetPath.imageThumbnailFolder);
         fs.mkdirSync($scope.targetPath.videoFolder);
         fs.mkdirSync($scope.targetPath.videoThumbnailFolder);
         try {
             fse.copySync("./framework/data.sqlite", $scope.targetPath.rootFolder+"/data.sqlite");//拷贝数据库
+            fse.copySync(path.join($scope.documentsPath.rootFolder,wechatUserMD5,"mmsetting.archive"),path.join($scope.targetPath.tmpFolder,"mmsetting.plist"));//
         }catch (error){
             console.error(error);
         }
@@ -209,7 +214,19 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
         } catch (err) {
             console.error(err)
         }
+        // 2.5 获取当前用户信息
+        var command = "plutil -convert xml1 "+path.join($scope.targetPath.tmpFolder,"mmsetting.plist");
+        require('child_process').execSync( command,{// child_process会调用sh命令，pc会调用cmd.exe命令
+            encoding: "utf8"
+        } );
+        var plist = require('plist');
 
+        var fileContent = fs.readFileSync(path.join($scope.targetPath.tmpFolder,"mmsetting.plist"),"utf8");
+        //console.log(fileContent);
+
+        var obj = plist.parse(fileContent);
+        console.log("mmsetting");
+        console.log(obj);
         //  3.连接mm.sqlite数据库
         var sqlite3 = require('sqlite3');
         // 打开一个sqlite数据库
@@ -225,7 +242,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                 console.log("data.sqlite error:", error);
             }
             });
-        var sql = "SELECT * FROM "+chatTableName+" order by CreateTime limit 1000";
+        var sql = "SELECT * FROM "+chatTableName+" order by CreateTime limit 10";
         var index = 1;
         //  5.逐条数据库信息获取
         db.each(sql,
@@ -742,22 +759,6 @@ WechatBackupControllers.controller('ChatDetailController',["$scope","$state", "$
         {
             videoTag = "<video src='file://"+videoFilePath+"' controls='controls'></video>";
         }else{
-            // var data = fs.readFileSync($scope.videoFolderPath + row.MesLocalID + ".video_thum");
-            // if(data != undefined) {
-            //     var a = data.toString("base64");
-            //     videoTag = "<img src='data:image/jpeg;base64," + a + "'/>";
-            // }
-            // var command = $scope.audioFolderPath + "converter.sh "+row.MesLocalID + ".aud mp3";
-            // var stdOut = require('child_process').execSync( command,{// child_process会调用sh命令，pc会调用cmd.exe命令
-            //     encoding: "utf8"
-            // } );
-            // console.log(stdOut);
-            // if(stdOut.indexOf("[OK]") > 0)// 存在OK,即转换成功
-            // {
-            //     videoTag = "<video src='file://"+videoFilePath+"' controls='controls'></video>";
-            // }else {
-            //     videoTag = "[语音读取出错]";
-            // }
             videoTag = "【视频不存在】";
         }
         return videoTag;
