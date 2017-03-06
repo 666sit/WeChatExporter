@@ -243,6 +243,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
             }
             });
         var sql = "SELECT * FROM "+chatTableName+" order by CreateTime limit 10";
+        var sql = "SELECT * FROM "+chatTableName+" order by CreateTime";
         var index = 1;
         //  5.逐条数据库信息获取
         db.each(sql,
@@ -297,7 +298,12 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                         //message.content = "未知消息类型：type id:"+rows[i].Type;
                 }
                 newDb.run("INSERT INTO ChatData (MesLocalID,CreateTime,Message,Status,ImgStatus,Type,Des,resourceName,thumbnailName) VALUES (?,?,?,?,?,?,?,?,?);",
-                    [row.MesLocalID,row.CreateTime,row.Message,row.Status,row.ImgStatus,row.Type,row.Des,result.resourceName,result.thumbnailName]);
+                    [row.MesLocalID,row.CreateTime,row.Message,row.Status,row.ImgStatus,row.Type,row.Des,result.resourceName,result.thumbnailName],function (error) {
+                    if(error) {
+                        console.log("插入数据库出错");
+                        console.log(error);
+                    }
+                    });
                 if(result.convertStatus == true){
                     message.status = "成功";
                 }else{
