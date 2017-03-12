@@ -7,11 +7,17 @@
                 <p>Documents路径：</p>
                 <p>{{dPath}}</p>
                 <label>用户MD5</label>
-                <input type="text" class="form-control" ng-model="wechatUserMD5">
+                <input type="text" class="form-control" ng-model="wechatUserMD5" placeholder="4ff9910cd14885aa373c45c4b7909ba7">
                 <label>数据表名</label>
-                <input type="text" class="form-control" ng-model="chatTableName">
+                <input type="text" class="form-control" ng-model="chatTableName" placeholder="Chat_165a100d5e335d624e3dba4d7cd555f9">
                 <label>文件输出路径</label>
-                <input placeholder="good" type="text" class="form-control" ng-model="targetPath.rootFolder">
+                <input placeholder="good" type="text" class="form-control" ng-model="targetPath.rootFolder" placeholder="/path/to/output">
+                <label>日期区间</label>
+                From: <input class="form-control" type="date"  ng-model="startDate">
+                To: <input class="form-control" type="date"  ng-model="endDate">
+                {{startDate}}
+                {{endDate}}
+
             </div>
             <div class="form-group">
             <button ng-click="startGeneration(dPath,wechatUserMD5,chatTableName)" class="btn btn-block btn-primary">开始生成数据</button>

@@ -5,6 +5,10 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
     $scope.wechatUserMD5 = "4ff9910cd14885aa373c45c4b7909ba7";
     $scope.chatTableName = "Chat_165a100d5e335d624e3dba4d7cd555f9";
     // $scope.outputLimit = 100;
+    $scope.startDate = "";
+    $scope.endDate = "";
+    $scope.startTimeStamp = -1;
+    $scope.endTimeStamp = -1;
     $scope.documentsPath = {
         rootFolder:"",
         audioFolder:"",
@@ -169,6 +173,10 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
         var fse = require('fs-extra');
         var path = require("path");
 
+        $scope.startTimeStamp =  dateToTimestamp($scope.startDate);
+        $scope.endTimeStamp = dateToTimestamp($scope.endDate);
+        console.log($scope.startTimeStamp);
+        console.log($scope.endTimeStamp);
         // 0.准备工作 a.设置好文件夹路径
         $scope.documentsPath.rootFolder = path.normalize(documentsPath);
 
@@ -242,8 +250,13 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                 console.log("data.sqlite error:", error);
             }
             });
-        var sql = "SELECT * FROM "+chatTableName+" order by CreateTime limit 10";
-        var sql = "SELECT * FROM "+chatTableName+" order by CreateTime";
+
+        var sql = "SELECT * FROM " + chatTableName ;
+        if($scope.startTimeStamp > 0 && $scope.endTimeStamp >0)
+        {
+            sql += " where CreateTime > "+$scope.startTimeStamp+" and CreateTime < "+$scope.endTimeStamp;
+        }
+        sql+=" order by CreateTime";
         var index = 1;
         //  5.逐条数据库信息获取
         db.each(sql,
@@ -809,4 +822,9 @@ function getChatterMd5(tableName) {
     var sep = tableName.split("_");
     return sep.pop();
 
+}
+function dateToTimestamp(date) {
+    var timeStamp = Date.parse(new Date(date));
+    timeStamp = timeStamp / 1000;
+    return timeStamp
 }
