@@ -257,6 +257,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
             sql += " where CreateTime > "+$scope.startTimeStamp+" and CreateTime < "+$scope.endTimeStamp;
         }
         sql+=" order by CreateTime";
+        console.log("generate sql: ",sql);
         var index = 1;
         //  5.逐条数据库信息获取
         db.each(sql,
