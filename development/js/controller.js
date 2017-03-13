@@ -39,7 +39,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
     };
     $scope.processAudio = function (localID,createTime) {
         //1. 根据localID定位到备份文件夹里的aud文件
-
+        //console.log(">>enter processAudio");
         var fs = require('fs');
         var fse = require('fs-extra');
         var path = require('path');
@@ -52,7 +52,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
         //var data = fs.readFileSync($scope.audioFolderPath+"/"+row.MesLocalID+".mp3");
         //2. 调用子进程来转换为MP3文件,并拷贝到新文件夹下
         //3. 返回新MP3的相对url地址
-            var command = $scope.documentsPath.audioFolder + "/converter.sh "+localID + ".aud mp3";
+            var command = "sh "+$scope.documentsPath.audioFolder + "/converter.sh "+localID + ".aud mp3";//!!! 注意，此处的 sh 不能少。官方虽说此处会自动调用sh，但是在release版下是行不通的，切记！
             //console.log("command:",command);
             var stdOut = require('child_process').execSync( command,{// child_process会调用sh命令，pc会调用cmd.exe命令
                 encoding: "utf8"
@@ -70,7 +70,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                 result.convertStatus = false;
                 result.errorMessage = "[语音读取出错]";
             }
-
+        //console.log("<<leave processAudio");
         return result;
     };
     $scope.processImage = function (localID,createTime) {
@@ -269,6 +269,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                     status:""
                 };
                 var result = {};
+                console.log("type:",row.Type);
                 switch(row.Type)
                 {
                     case 1:// 文字消息
@@ -289,27 +290,25 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                         message.type = "视频消息";
                         break;
                     case 47:// 动画表情
-                        //message.content = "动画表情";
                         message.type = "动画表情";
                         break;
                     case 49:// 分享链接
-                        //message.content = "分享链接";
                         message.type = "分享链接";
                         break;
                     case 48:// 位置
-                        //message.content = "位置";
                         message.type = "位置";
                         break;
                     case 42:// 名片
-                        //message.content = "名片";
                         message.type = "名片";
                         break;
                     case 50:// 语音、视频电话
                         message.type = "语音、视频电话";
                         break;
+                    case 10000:
+                        message.type = "位置共享"
+                        break;
                     default:
                         message.type = "其他类型消息";
-                        //message.content = "未知消息类型：type id:"+rows[i].Type;
                 }
                 newDb.run("INSERT INTO ChatData (MesLocalID,CreateTime,Message,Status,ImgStatus,Type,Des,resourceName,thumbnailName) VALUES (?,?,?,?,?,?,?,?,?);",
                     [row.MesLocalID,row.CreateTime,row.Message,row.Status,row.ImgStatus,row.Type,row.Des,result.resourceName,result.thumbnailName],function (error) {
@@ -323,8 +322,6 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                 }else{
                     message.status = result.errorMessage;
                 }
-                //message.status = result.convertStatus == true?"成功":"失败"
-
                 message.content = "处理第"+index+"条消息|消息类型："+message.type+"|处理状况："+message.status;
                 console.log(message.content);
 
