@@ -305,7 +305,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
                         message.type = "语音、视频电话";
                         break;
                     case 10000:
-                        message.type = "位置共享"
+                        message.type = "系统消息"
                         break;
                     default:
                         message.type = "其他类型消息";
