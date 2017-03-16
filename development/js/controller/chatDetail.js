@@ -333,7 +333,7 @@ WechatBackupControllers.controller('ChatDetailController',["$scope","$timeout","
 
     $scope.saveRawHtml = function () {
         var fs = require('fs-extra');
-        var markup = document.documentElement.innerHTML;
+        var markup = document.documentElement.outerHTML;
         fs.writeFileSync("../distHtml/index_"+$scope.currentPage+".html",markup);
     };
 }]);
