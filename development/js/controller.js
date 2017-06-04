@@ -206,7 +206,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
         fs.mkdirSync($scope.targetPath.videoThumbnailFolder);
         try {
             fse.copySync("./framework/data.sqlite", $scope.targetPath.rootFolder+"/data.sqlite");//拷贝数据库
-            fse.copySync(path.join($scope.documentsPath.rootFolder,wechatUserMD5,"mmsetting.archive"),path.join($scope.targetPath.tmpFolder,"mmsetting.plist"));//
+            //fse.copySync(path.join($scope.documentsPath.rootFolder,wechatUserMD5,"mmsetting.archive"),path.join($scope.targetPath.tmpFolder,"mmsetting.plist"));//
         }catch (error){
             console.error(error);
         }
@@ -223,6 +223,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
             console.error(err)
         }
         // 2.5 获取当前用户信息
+        /*
         var command = "plutil -convert xml1 "+path.join($scope.targetPath.tmpFolder,"mmsetting.plist");
         require('child_process').execSync( command,{// child_process会调用sh命令，pc会调用cmd.exe命令
             encoding: "utf8"
@@ -235,6 +236,7 @@ WechatBackupControllers.controller('EntryController',["$scope","$state",function
         var obj = plist.parse(fileContent);
         console.log("mmsetting");
         console.log(obj);
+        */
         //  3.连接mm.sqlite数据库
         var sqlite3 = require('sqlite3');
         // 打开一个sqlite数据库
